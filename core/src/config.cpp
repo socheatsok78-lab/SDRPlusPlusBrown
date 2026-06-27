@@ -108,3 +108,28 @@ void ConfigManager::autoSaveWorker() {
         }
     }
 }
+
+void ConfigManager::transformPaths(json& conf, bool expand) {
+    const char* env_prefix = std::getenv("SDRPP_PREFIX");
+    const std::string prefix = env_prefix ? env_prefix : INSTALL_PREFIX;
+
+    std::vector<std::string> directoryKeys = {
+        "modulesDirectory",
+        "resourcesDirectory"
+    };
+
+    const std::string from = expand ? "@prefix@" : prefix;
+    const std::string to = expand ? prefix : "@prefix@";
+
+    for (const auto& key : directoryKeys) {
+        if (conf.contains(key)) {
+            auto dir = conf[key].get<std::string>();
+
+            size_t pos = dir.find(from);
+            if (pos != std::string::npos) {
+                dir.replace(pos, from.length(), to);
+                conf[key] = dir;
+            }
+        }
+    }
+}
