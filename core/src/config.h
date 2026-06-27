@@ -33,4 +33,5 @@ private:
     std::mutex termMtx;
     std::condition_variable termCond;
     volatile bool termFlag = false;
+    static void transformPaths(json& conf, bool expand);
 };
