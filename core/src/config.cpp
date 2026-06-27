@@ -46,6 +46,9 @@ void ConfigManager::load(json def, bool lock) {
         conf = def;
         save(false);
     }
+
+    transformPaths(conf, true);
+
     if (lock) { mtx.unlock(); }
 }
 
@@ -54,7 +57,9 @@ void ConfigManager::save(bool lock) {
     auto justpath = wstr::str2wstr(path);
     auto newpath = wstr::str2wstr(path + ".new");
     std::ofstream file(newpath);
-    file << conf.dump(4);
+    auto tmp_conf = conf;
+    transformPaths(tmp_conf, false);
+    file << tmp_conf.dump(4);
     file.close();
     std::filesystem::rename(newpath, justpath);
     if (lock) { mtx.unlock(); }
